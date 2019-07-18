@@ -1,5 +1,9 @@
 from typing import List
-from urllib.parse import urlparse
+from urllib.parse import (
+  urlparse,
+  parse_qs,
+  unquote,
+)
 
 from bs4 import BeautifulSoup
 import requests
@@ -31,3 +35,10 @@ class Parser():
 
   def is_folder(self, url: str) -> bool:
     return url.startswith('?dir=')
+
+  def get_current_folder(self, url: str) -> str:
+    parsed_url = urlparse(url)
+    qs = parse_qs(parsed_url.query)
+    paths = qs['dir'].pop().split("/")
+    current_folder = paths.pop()
+    return current_folder

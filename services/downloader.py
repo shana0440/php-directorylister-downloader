@@ -27,11 +27,11 @@ class Downloader():
     sys.stdout.flush()
 
   def download_links(self, links: List[Link], to: str, executor: ThreadPoolExecutor):
+    if not os.path.exists(to):
+      os.mkdir(to)
     for link in links:
       if link.is_folder:
         folder = "%s/%s" % (to, link.name)
-        if not os.path.exists(folder):
-          os.mkdir(folder)
         self.download_links(link.children, folder, executor)
       else:
         executor.submit(self.download, link, to)
