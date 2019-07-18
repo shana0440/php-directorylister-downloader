@@ -19,9 +19,7 @@ class Parser():
     url_prefix = "%s://%s%s" % (parsed_url.scheme, parsed_url.hostname, parsed_url.path)
     resp = requests.get(url)
     soup = BeautifulSoup(resp.text, 'html.parser')
-    links = soup.find_all('a')
-    # Reserve links
-    links = list(filter(lambda x: x.get('class') is not None and'clearfix' in x.get('class'), links))
+    links = soup.find_all('a', class_="clearfix")
     # Remove back to parent link
     links = list(filter(lambda x: x.get('data-name').strip() != '..', links))
     return list(map(lambda x: Link(
