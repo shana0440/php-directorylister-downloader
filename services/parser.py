@@ -7,8 +7,8 @@ import requests
 from models.link import Link
 
 class Parser():
-  def run(self, start_url: str) -> List[Link]:
-    files = self.list(start_url)
+  def run(self, entry_point: str) -> List[Link]:
+    files = self.list(entry_point)
     for file in files:
       if file.is_folder:
         file.children = self.run(file.url)
