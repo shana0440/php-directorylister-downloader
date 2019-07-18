@@ -11,7 +11,7 @@ class Downloader():
   def download(self, link: Link, to: str):
     with requests.get(link.url, stream=True) as resp:
       total_length = int(resp.headers.get('content-length'))
-      filename = "%s/%s" % (to, link.name)
+      filename = "%s/%s" % (to, link.path)
       with open(filename, 'wb') as file:
         current_progress = 0
         for chunk in resp.iter_content(chunk_size=5120):
@@ -19,6 +19,7 @@ class Downloader():
             current_progress += len(chunk)
             file.write(chunk)
             self.print_progress(current_progress, total_length, filename)
+      # break link
       print()
 
   def print_progress(self, current: int, total: int, filename: str):
@@ -26,16 +27,18 @@ class Downloader():
     sys.stdout.write("\r[%s%s] %s" % ('=' * done, ' ' * (50 - done), filename))
     sys.stdout.flush()
 
-  def download_links(self, links: List[Link], to: str, executor: ThreadPoolExecutor):
-    if not os.path.exists(to):
-      os.mkdir(to)
-    for link in links:
+  def download_folder_tree(self, link: Link, to: str, executor: ThreadPoolExecutor):
+    stack = [link]
+    while stack:
+      link = stack.pop()
       if link.is_folder:
-        folder = "%s/%s" % (to, link.name)
-        self.download_links(link.children, folder, executor)
+        folder = "%s/%s" % (to, link.path)
+        if not os.path.exists(folder):
+          os.mkdir(folder)
+        stack.extend(link.children)
       else:
         executor.submit(self.download, link, to)
 
-  def download_links_async(self, links: List[Link], to: str, workers: int):
+  def download_folder_tree_async(self, link: Link, to: str, workers: int):
     with ThreadPoolExecutor(max_workers=workers) as executor:
-      self.download_links(links, to, executor)
+      self.download_folder_tree(link, to, executor)

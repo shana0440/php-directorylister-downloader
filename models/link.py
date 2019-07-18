@@ -6,6 +6,7 @@ from dataclasses import dataclass
 @dataclass
 class Link():
   name: str
+  path: str
   url: str
   is_folder: bool
   children: List[Link]
