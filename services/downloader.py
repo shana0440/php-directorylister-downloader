@@ -1,5 +1,6 @@
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from typing import List
 
 import requests
@@ -26,11 +27,12 @@ class Downloader():
     sys.stdout.flush()
 
   def download_links(self, links: List[Link], to: str):
-    for link in links:
-      if link.is_folder:
-        folder = "%s/%s" % (to, link.name)
-        if not os.path.exists(folder):
-          os.mkdir(folder)
-        self.download_links(link.children, folder)
-      else:
-        self.download(link, to)
+    with ThreadPoolExecutor(max_workers=10) as executor:
+      for link in links:
+        if link.is_folder:
+          folder = "%s/%s" % (to, link.name)
+          if not os.path.exists(folder):
+            os.mkdir(folder)
+          self.download_links(link.children, folder)
+        else:
+          executor.submit(self.download, link, to)
