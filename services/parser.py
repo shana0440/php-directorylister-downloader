@@ -41,4 +41,4 @@ class Parser():
     qs = parse_qs(parsed_url.query)
     paths = qs['dir'].pop().split("/")
     current_folder = paths.pop()
-    return current_folder
+    return unquote(current_folder)
