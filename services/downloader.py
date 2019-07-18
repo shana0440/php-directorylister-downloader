@@ -26,13 +26,16 @@ class Downloader():
     sys.stdout.write("\r[%s%s] %s" % ('=' * done, ' ' * (50 - done), filename))
     sys.stdout.flush()
 
-  def download_links(self, links: List[Link], to: str):
-    with ThreadPoolExecutor(max_workers=10) as executor:
-      for link in links:
-        if link.is_folder:
-          folder = "%s/%s" % (to, link.name)
-          if not os.path.exists(folder):
-            os.mkdir(folder)
-          self.download_links(link.children, folder)
-        else:
-          executor.submit(self.download, link, to)
+  def download_links(self, links: List[Link], to: str, executor: ThreadPoolExecutor):
+    for link in links:
+      if link.is_folder:
+        folder = "%s/%s" % (to, link.name)
+        if not os.path.exists(folder):
+          os.mkdir(folder)
+        self.download_links(link.children, folder, executor)
+      else:
+        executor.submit(self.download, link, to)
+
+  def download_links_async(self, links: List[Link], to: str, workers: int):
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+      self.download_links(links, to, executor)
