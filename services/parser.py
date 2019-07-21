@@ -11,7 +11,7 @@ import requests
 from models.link import Link
 
 class Parser():
-  on_folder_updated_observers: Callable[[Link, str], None] = []
+  on_folder_updated_observers: List[Callable[[Link, str], None]] = []
 
   def walk_folder_tree(self, entry_point: str):
     root_link = Link(

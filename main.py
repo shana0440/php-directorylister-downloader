@@ -2,9 +2,10 @@ import os
 from typing import List
 import argparse
 
+from models.link import Link
 from services.parser import Parser
 from services.downloader import Downloader
-from models.link import Link
+from services.printer import Printer
 
 args_parser = argparse.ArgumentParser()
 args_parser.add_argument("url", help="the dictinoary url you want to download")
@@ -14,6 +15,11 @@ args = args_parser.parse_args()
 
 php_directory_lister_parser = Parser()
 downloader = Downloader(args.workers)
+printer = Printer()
+
+downloader.on_download_progress_updated(
+  lambda current, total, filename: printer.print_progress(current, total, filename)
+)
 
 php_directory_lister_parser.on_folder_updated(
   lambda link: downloader.download(link, args.output)
