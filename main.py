@@ -10,7 +10,7 @@ from services.printer import Printer
 args_parser = argparse.ArgumentParser()
 args_parser.add_argument("url", help="the dictinoary url you want to download")
 args_parser.add_argument("--output", help="output to specific path, default is current path", default=os.getcwd())
-args_parser.add_argument("--workers", help="the number used to download multiple files at sametime, default is 5", default=5)
+args_parser.add_argument("--workers", help="the number used to download multiple files at sametime, default is 5", default=5, type=int)
 args = args_parser.parse_args()
 
 php_directory_lister_parser = Parser()

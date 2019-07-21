@@ -10,7 +10,7 @@ class Downloader():
   executor: ThreadPoolExecutor
   on_download_progress_updated_observers: List[Callable[[int, int, str], None]] = []
 
-  def __init__(self, workers):
+  def __init__(self, workers: int):
     self.executor = ThreadPoolExecutor(max_workers=workers)
 
   def __del__(self):
