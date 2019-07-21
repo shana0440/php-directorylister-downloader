@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Callable
 from urllib.parse import (
   urlparse,
   parse_qs,
@@ -11,6 +11,8 @@ import requests
 from models.link import Link
 
 class Parser():
+  on_folder_updated_observers: Callable[[Link, str], None] = []
+
   def get_folder_tree(self, entry_point: str) -> Link:
     root_link = Link(
       url=entry_point,
@@ -25,6 +27,7 @@ class Parser():
       if link.is_folder:
         links = self.list_children(link)
         link.children = links
+        [self.notify_folder_updated(link) for link in links]
         [stack.append(link) for link in links]
 
     return root_link
@@ -54,3 +57,9 @@ class Parser():
     paths = qs['dir'].pop().split("/")
     current_folder = paths.pop()
     return unquote(current_folder)
+
+  def on_folder_updated(self, observer: Callable[[Link, str], None]):
+    self.on_folder_updated_observers.append(observer)
+
+  def notify_folder_updated(self, link: Link):
+    [observer(link) for observer in self.on_folder_updated_observers]

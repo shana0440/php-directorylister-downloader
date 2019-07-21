@@ -13,6 +13,10 @@ args_parser.add_argument("--workers", help="the number used to download multiple
 args = args_parser.parse_args()
 
 php_directory_lister_parser = Parser()
+downloader = Downloader(args.workers)
+
+php_directory_lister_parser.on_folder_updated(
+  lambda link: downloader.download(link, args.output)
+)
+
 root = php_directory_lister_parser.get_folder_tree(args.url)
-downloader = Downloader()
-downloader.download_folder_tree_async(root, args.output, args.workers)

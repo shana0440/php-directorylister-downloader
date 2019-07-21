@@ -8,7 +8,19 @@ import requests
 from models.link import Link
 
 class Downloader():
+  executor: ThreadPoolExecutor
+
+  def __init__(self, workers):
+    self.executor = ThreadPoolExecutor(max_workers=workers)
+
+  def __del__(self):
+    self.executor.shutdown()
+
   def download(self, link: Link, to: str):
+    self.executor.submit(self._download, link, to)
+
+  def _download(self, link: Link, to: str):
+    self.make_folder(link, to)
     with requests.get(link.url, stream=True) as resp:
       total_length = int(resp.headers.get('content-length'))
       filename = "%s/%s" % (to, link.path)
@@ -27,18 +39,9 @@ class Downloader():
     sys.stdout.write("\r[%s%s] %s" % ('=' * done, ' ' * (50 - done), filename))
     sys.stdout.flush()
 
-  def download_folder_tree(self, link: Link, to: str, executor: ThreadPoolExecutor):
-    stack = [link]
-    while stack:
-      link = stack.pop()
-      if link.is_folder:
-        folder = "%s/%s" % (to, link.path)
-        if not os.path.exists(folder):
-          os.mkdir(folder)
-        stack.extend(link.children)
-      else:
-        executor.submit(self.download, link, to)
-
-  def download_folder_tree_async(self, link: Link, to: str, workers: int):
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-      self.download_folder_tree(link, to, executor)
+  def make_folder(self, link: Link, to: str):
+    folder_paths = link.path.split("/") if link.is_folder else os.path.dirname(link.path).split("/")
+    for path in folder_paths:
+      folder = "%s/%s" % (to, path)
+      if not os.path.exists(folder):
+        os.mkdir(folder)
