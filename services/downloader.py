@@ -17,7 +17,8 @@ class Downloader():
     self.executor.shutdown()
 
   def download(self, link: Link, to: str):
-    self.executor.submit(self._download, link, to)
+    if not link.is_folder:
+      self.executor.submit(self._download, link, to)
 
   def _download(self, link: Link, to: str):
     self.make_folder(link, to)

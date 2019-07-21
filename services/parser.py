@@ -13,7 +13,7 @@ from models.link import Link
 class Parser():
   on_folder_updated_observers: Callable[[Link, str], None] = []
 
-  def get_folder_tree(self, entry_point: str) -> Link:
+  def walk_folder_tree(self, entry_point: str):
     root_link = Link(
       url=entry_point,
       path=self.get_current_folder(entry_point),
@@ -26,11 +26,10 @@ class Parser():
       link = stack.pop()
       if link.is_folder:
         links = self.list_children(link)
-        link.children = links
-        [self.notify_folder_updated(link) for link in links]
-        [stack.append(link) for link in links]
-
-    return root_link
+        for link in links:
+          if link.is_folder:
+            stack.append(link)
+          self.notify_folder_updated(link)
 
   def list_children(self, link: Link) -> List[Link]:
     parsed_url = urlparse(link.url)

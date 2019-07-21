@@ -19,4 +19,4 @@ php_directory_lister_parser.on_folder_updated(
   lambda link: downloader.download(link, args.output)
 )
 
-root = php_directory_lister_parser.get_folder_tree(args.url)
+php_directory_lister_parser.walk_folder_tree(args.url)
