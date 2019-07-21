@@ -35,8 +35,9 @@ class Downloader():
 
   def make_folder(self, link: Link, to: str):
     folder_paths = link.path.split("/") if link.is_folder else os.path.dirname(link.path).split("/")
+    folder = to
     for path in folder_paths:
-      folder = "%s/%s" % (to, path)
+      folder = "%s/%s" % (folder, path)
       if not os.path.exists(folder):
         os.mkdir(folder)
 
