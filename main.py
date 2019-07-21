@@ -18,7 +18,8 @@ downloader = Downloader(args.workers)
 printer = Printer()
 
 downloader.on_download_progress_updated(
-  lambda current, total, filename: printer.print_progress(current, total, filename)
+  lambda current, total, filename: \
+    printer.print_progress(current, total, filename) if current < total else printer.completed(filename)
 )
 
 php_directory_lister_parser.on_folder_updated(
